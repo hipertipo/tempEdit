@@ -3,8 +3,6 @@ tempEdit
 
 A tool for importing glyphs from `.designspace` sources into a temporary font for editing, and saving them back into their source UFOs when done.
 
-![](screenshot.png)
-
 Problem
 -------
 
@@ -22,10 +20,12 @@ Solution
 - avoid opening several large fonts in the UI!
 - treat full UFOs as a “database”, work with partial fonts instead
 - open only glyphs that need to be edited in the UI using temporary fonts
-- after the glyphs have been edited, save them back into their original fonts
+- after the glyphs have been edited, save them back into their source fonts
 
 Usage
 -----
+
+![](screenshot.png)
 
 1. Drag and drop one or more `.designspace` files from Finder into the *designspaces* list (top).
 
@@ -49,4 +49,4 @@ Usage
 Implementation
 --------------
 
-When a glyph is imported from a UFO source into a temporary font, the path of the source glyphset is stored in the glyph lib. This way, the glyph can find its way back to the source font when it is exported.
+When a glyph is imported from a UFO source into a temporary font, the path of the source glyphset is stored in the glyph lib. This way, the glyph can find its way back to its source font when it is exported.

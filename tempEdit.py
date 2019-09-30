@@ -51,6 +51,7 @@ class TempEditGlyphs:
             [],
             allowsMultipleSelection=False,
             allowsEmptySelection=False,
+            editCallback=self.selectDesignspaceCallback,
             selectionCallback=self.selectDesignspaceCallback,
             enableDelete=True,
             otherApplicationDropSettings=dict(
@@ -129,8 +130,10 @@ class TempEditGlyphs:
     def selectDesignspaceCallback(self, sender):
         selection = sender.getSelection()
         designSpaces = self.w.designSpacesList.get()
+
         if not selection or not len(designSpaces):
             return
+
         designSpacePath = [D for i, D in enumerate(designSpaces) if i in selection][0]
         designSpace = DesignSpaceDocument()
         designSpace.read(designSpacePath)
@@ -195,7 +198,7 @@ class TempEditGlyphs:
                                 if self.verbose:
                                     print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
                                 tmpFont[component.baseGlyph] = srcFont[component.baseGlyph]
-                                tmpFont[glyphName].lib[self.glyphSetPathKey] = glyphsFolder
+                                tmpFont[component.baseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
 
                     if self.verbose:
                         print(f'\t\timporting {glyphName}...')
@@ -217,7 +220,6 @@ class TempEditGlyphs:
                 srcFont = OpenFont(ufoPath, showInterface=False)
                 glyphsFolder = os.path.join(ufoPath, 'glyphs')
                 ufoName = splitall(glyphsFolder)[-2]
-
                 layerName = ufoName.replace('.ufo', '')
                 tmpLayer = tmpFont.newLayer(layerName)
 
@@ -235,13 +237,12 @@ class TempEditGlyphs:
                         continue
 
                     srcGlyph = srcFont[glyphName]
-                    if srcGlyph.components:
-                        for component in srcGlyph.components:
-                            if not component.baseGlyph in tmpFont:
-                                if self.verbose:
-                                    print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
-                                tmpLayer[component.baseGlyph] = srcFont[component.baseGlyph]
-                                tmpLayer[component.baseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
+                    for component in srcGlyph.components:
+                        if component.baseGlyph not in tmpLayer:
+                            if self.verbose:
+                                print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
+                            tmpLayer[component.baseGlyph] = srcFont[component.baseGlyph]
+                            tmpLayer[component.baseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
 
                     if self.verbose:
                         print(f'\t\timporting {glyphName}...')
@@ -297,6 +298,7 @@ class TempEditGlyphs:
         if not isProposal:
             for path in paths:
                 self.w.designSpacesList.append(path)
+                self.w.designSpacesList.setSelection([0])
 
         return True
 
