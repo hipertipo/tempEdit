@@ -12,7 +12,7 @@ Problem
 - each master contains hundreds of glyphs each
 - need to have several masters open at once in the 
 UI for editing
-- refreshing the Font Collection is a performance bottleneck, RF gets slow
+- refreshing the Font Collection is a performance bottleneck, RF becomes slower
 
 see [What computer performance metrics are most relevant to RF performance?](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
 
@@ -46,4 +46,7 @@ Usage
 5. Make changes, then use the *export* button to save the selected glyphs back into their source fonts.
 
 
-[](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
+Implementation
+--------------
+
+When a glyph is imported from a UFO source into a temporary font, the path of the source glyphset is stored in the glyph lib. This way, the glyph can find its way back to the source font when it is exported.
