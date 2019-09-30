@@ -33,9 +33,17 @@ Usage
 
 3. Define a list with names of glyphs you wish to import for editing.
 
-4. Click on the *import* button to import glyphs into a temporary font. Choose *fonts → fonts* to import each source into a separate font, or *fonts → layers* to import sources as layers of a single font.
+4. Click on the *import* button to import glyphs into a temporary font.
 
-5. Make changes, then use *export* to save the selected glyphs back into their source fonts.
+    Choose *fonts → fonts* to import each source into a separate font: 
+
+    ![](fonts-fonts.png)
+
+    Choose *fonts → layers* to import sources as layers of a single font:
+
+    ![](fonts-layers.png)
+
+5. Make changes, then use the *export* button to save the selected glyphs back into their source fonts.
 
 
 [](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
