@@ -1,6 +1,6 @@
 import os, sys
 from AppKit import NSFilenamesPboardType, NSDragOperationCopy
-from vanilla import Window, List, Button, TextBox, EditText
+from vanilla import Window, List, Button, TextBox, EditText, RadioGroup, ProgressBar
 from fontTools.designspaceLib import DesignSpaceDocument
 from fontTools.ufoLib.glifLib import GlyphSet
 from mojo.roboFont import OpenWindow
@@ -42,7 +42,7 @@ class TempEditGlyphs:
         x = y = p = self.padding
         self.w.designSpacesListLabel = TextBox(
             (x, y, -p, self.lineHeight),
-            'design spaces:', sizeStyle='small')
+            'designspaces:', sizeStyle='small')
 
         y += self.lineHeight
         listHeight = self.lineHeight * 4
@@ -59,35 +59,46 @@ class TempEditGlyphs:
                 callback=self.dropCallback))
 
         y += listHeight + p
+        self.w.mastersListLabel = TextBox(
+            (x, y, -p, self.lineHeight),
+            'UFO sources:', sizeStyle='small')
+
+        y += self.lineHeight
+        listHeight = -self.lineHeight * 6 - p * 6
+        self.w.mastersList = List((x, y, -p, listHeight), [])
+
+        y = -self.lineHeight * 6 - p * 5
         self.w.glyphNamesLabel = TextBox(
             (x, y, -p, self.lineHeight),
             'glyph names:', sizeStyle='small')
 
-        y += self.lineHeight
+        y = -(p + self.lineHeight) * 5
         self.w.glyphNames = EditText(
             (x, y, -p, self.lineHeight),
             'a b c A B C one two three')
 
-        y += self.lineHeight + p
-        self.w.mastersListLabel = TextBox(
-            (x, y, -p, self.lineHeight),
-            'masters:', sizeStyle='small')
-
-        y += self.lineHeight
-        listHeight = -(p * 3 + self.lineHeight * 2)
-        self.w.mastersList = List((x, y, -p, listHeight), [])
-
-        y = -(p + self.lineHeight) * 2
+        y = -(p + self.lineHeight) * 4
         self.w.importButton = Button(
                 (x, y, -p, self.lineHeight),
                 'import glyphs',
                 callback=self.importButtonCallback)
 
-        y = -(p + self.lineHeight)
+        y = -(p + self.lineHeight) * 3
+        self.w.importMode = RadioGroup(
+                (x, y, -p, self.lineHeight),
+                ['fonts → fonts', 'fonts → layers'],
+                sizeStyle='small',
+                isVertical=False)
+        self.w.importMode.set(0)
+
+        y = -(p + self.lineHeight) * 2
         self.w.exportButton = Button(
                 (x, y, -p, self.lineHeight),
-                'export glyphs',
+                'export selected glyphs',
                 callback=self.exportButtonCallback)
+
+        y = -(p + self.lineHeight)
+        self.w.progress = ProgressBar((x, y, -p, self.lineHeight))
 
         self.w.open()
 
@@ -110,6 +121,10 @@ class TempEditGlyphs:
     @property
     def glyphSetPathKey(self):
         return f'{self.key}.glyphSetPath'
+
+    @property
+    def importMode(self):
+        return self.w.importMode.get()
 
     def selectDesignspaceCallback(self, sender):
         selection = sender.getSelection()
@@ -144,57 +159,130 @@ class TempEditGlyphs:
             enableDelete=False)
 
     def importButtonCallback(self, sender):
+
         if not len(self.selectedMasters):
             return
 
-        if self.verbose: print('importing glyphs from selected sources...\n')
+        if self.verbose:
+            print('importing glyphs from selected sources...\n')
 
-        for master in self.selectedMasters:
-            ufoPath = master['UFO path']
-            srcFont = OpenFont(ufoPath, showInterface=False)
-            tmpFont = NewFont(familyName=srcFont.info.familyName, styleName=srcFont.info.styleName)
-            glyphsFolder = os.path.join(ufoPath, 'glyphs')
-            tmpFont.lib[self.glyphSetPathKey] = glyphsFolder
-            ufoName = splitall(glyphsFolder)[-2]
+        # ----------------------
+        # mode 0 : fonts → fonts
+        # ----------------------
 
-            if self.verbose: print(f'\t{ufoName}:')
-            for glyphName in self.glyphNames:
-                if glyphName not in srcFont:
-                    if self.verbose: print(f'\t\t{glyphName} not in font.')
-                    continue
+        if self.importMode == 0:
 
-                srcGlyph = srcFont[glyphName]
-                if srcGlyph.components:
-                    for component in srcGlyph.components:
-                        if not component.baseGlyph in tmpFont:
-                            if self.verbose: print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
-                            tmpFont[component.baseGlyph] = srcFont[component.baseGlyph]
+            for master in self.selectedMasters:
+                ufoPath = master['UFO path']
+                srcFont = OpenFont(ufoPath, showInterface=False)
+                tmpFont = NewFont(familyName=srcFont.info.familyName, styleName=srcFont.info.styleName)
+                glyphsFolder = os.path.join(ufoPath, 'glyphs')
+                ufoName = splitall(glyphsFolder)[-2]
 
-                if self.verbose: print(f'\t\timporting {glyphName}...')
-                tmpFont[glyphName] = srcGlyph
+                if self.verbose:
+                    print(f'\t{ufoName}:')
 
-            if self.verbose: print()
+                for glyphName in self.glyphNames:
+                    if glyphName not in srcFont:
+                        if self.verbose:
+                            print(f'\t\t{glyphName} not in font.')
+                        continue
 
-        if self.verbose: print('...done.\n')
+                    srcGlyph = srcFont[glyphName]
+                    if srcGlyph.components:
+                        for component in srcGlyph.components:
+                            if not component.baseGlyph in tmpFont:
+                                if self.verbose:
+                                    print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
+                                tmpFont[component.baseGlyph] = srcFont[component.baseGlyph]
+                                tmpFont[glyphName].lib[self.glyphSetPathKey] = glyphsFolder
+
+                    if self.verbose:
+                        print(f'\t\timporting {glyphName}...')
+                    tmpFont[glyphName] = srcGlyph
+                    tmpFont[glyphName].lib[self.glyphSetPathKey] = glyphsFolder
+
+                if self.verbose:
+                    print()
+
+        # -----------------------
+        # mode 1 : fonts → layers
+        # -----------------------
+
+        else:
+            tmpFont  = NewFont(familyName='tempEdit')
+
+            for i, master in enumerate(self.selectedMasters):
+                ufoPath = master['UFO path']
+                srcFont = OpenFont(ufoPath, showInterface=False)
+                glyphsFolder = os.path.join(ufoPath, 'glyphs')
+                ufoName = splitall(glyphsFolder)[-2]
+
+                layerName = ufoName.replace('.ufo', '')
+                tmpLayer = tmpFont.newLayer(layerName)
+
+                if self.verbose:
+                    print(f'\t{ufoName}:')
+
+                if i == 0:
+                    tmpFont.defaultLayer = tmpLayer
+                    tmpFont.removeLayer('foreground')
+
+                for glyphName in self.glyphNames:
+                    if glyphName not in srcFont:
+                        if self.verbose:
+                            print(f'\t\t{glyphName} not in font.')
+                        continue
+
+                    srcGlyph = srcFont[glyphName]
+                    if srcGlyph.components:
+                        for component in srcGlyph.components:
+                            if not component.baseGlyph in tmpFont:
+                                if self.verbose:
+                                    print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
+                                tmpLayer[component.baseGlyph] = srcFont[component.baseGlyph]
+                                tmpLayer[component.baseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
+
+                    if self.verbose:
+                        print(f'\t\timporting {glyphName}...')
+                    tmpLayer[glyphName] = srcGlyph
+                    tmpLayer[glyphName].width = srcGlyph.width
+                    tmpLayer[glyphName].lib[self.glyphSetPathKey] = glyphsFolder
+
+                if self.verbose:
+                    print()
+
+        if self.verbose:
+            print('...done.\n')
 
     def exportButtonCallback(self, sender):
         f = CurrentFont()
         if f is None:
             return
 
-        print('exporting selected glyphs back to their sources...')
-
-        glyphsFolder = f.lib[self.glyphSetPathKey]
-        glyphSet = GlyphSet(glyphsFolder, validateWrite=True)
-        ufoName = splitall(glyphsFolder)[-2]
+        if self.verbose:
+            print('exporting selected glyphs back to their sources...\n')
 
         for glyphName in f.selectedGlyphNames:
-            print(f'\twriting {glyphName} in {ufoName}...')
-            glyphSet.writeGlyph(glyphName, f[glyphName].naked(), f[glyphName].drawPoints)
+            for layerName in f.layerOrder:
+                glyph = f[glyphName].getLayer(layerName)
 
-        glyphSet.writeContents()
+                if self.glyphSetPathKey not in glyph.lib:
+                    continue
 
-        print('...done.\n')
+                glyphsFolder = glyph.lib[self.glyphSetPathKey]
+                glyphSet = GlyphSet(glyphsFolder, validateWrite=True)
+                ufoName = splitall(glyphsFolder)[-2]
+
+                if self.verbose:
+                    print(f'\twriting {glyphName} to {ufoName}...')
+
+                glyphSet.writeGlyph(glyphName, glyph.naked(), glyph.drawPoints)
+                glyphSet.writeContents()
+
+        if self.verbose:
+            print()
+            print('...done.\n')
 
     def dropCallback(self, sender, dropInfo):
         isProposal = dropInfo["isProposal"]
