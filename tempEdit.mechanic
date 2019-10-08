@@ -1,0 +1,7 @@
+extensionName: tempEdit
+repository: http://github.com/gferreira/tempEdit
+extensionPath: tempEdit.roboFontExt
+description: Import master designspace glyphs into temp font for editing, and save them back.
+developer: Gustavo Ferreira
+developerURL: http://github.com/gferreira
+tags: [ variable fonts, interpolation, designspace, workflow, masters, layers ]

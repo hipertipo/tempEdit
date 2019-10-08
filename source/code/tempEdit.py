@@ -1,9 +1,10 @@
 import os, sys
 from AppKit import NSFilenamesPboardType, NSDragOperationCopy
-from vanilla import Window, List, Button, TextBox, EditText, RadioGroup, ProgressBar
+from vanilla import Window, List, Button, TextBox, EditText, RadioGroup, ProgressBar, Group
 from fontTools.designspaceLib import DesignSpaceDocument
 from fontTools.ufoLib.glifLib import GlyphSet
 from mojo.roboFont import OpenWindow
+from mojo.UI import AccordionView
 
 
 def splitall(path):
@@ -26,12 +27,10 @@ def splitall(path):
 class TempEditGlyphs:
 
     key = 'com.hipertipo.tempEdit'
-
-    width      = 640
-    height     = 640
-    padding    = 10
+    width  = 640
+    height = 640
+    padding = 10
     lineHeight = 22
-
     verbose = True
 
     def __init__(self):
@@ -39,15 +38,10 @@ class TempEditGlyphs:
             title='tempEdit',
             minSize=(self.width * 0.6, self.height * 0.7))
 
+        self.designspaces = Group((0, 0, -0, -0))
         x = y = p = self.padding
-        self.w.designSpacesListLabel = TextBox(
-            (x, y, -p, self.lineHeight),
-            'designspaces:', sizeStyle='small')
-
-        y += self.lineHeight
-        listHeight = self.lineHeight * 4
-        self.w.designSpacesList = List(
-            (x, y, -p, listHeight),
+        self.designspaces.list = List(
+            (x, y, -p, -p),
             [],
             allowsMultipleSelection=False,
             allowsEmptySelection=False,
@@ -59,64 +53,63 @@ class TempEditGlyphs:
                 operation=NSDragOperationCopy,
                 callback=self.dropCallback))
 
-        y += listHeight + p
-        self.w.mastersListLabel = TextBox(
-            (x, y, -p, self.lineHeight),
-            'UFO sources:', sizeStyle='small')
+        self.sources = Group((0, 0, -0, -0))
+        x = y = p = self.padding
+        self.sources.list = List((x, y, -p, -p), [])
 
-        y += self.lineHeight
-        listHeight = -self.lineHeight * 6 - p * 6
-        self.w.mastersList = List((x, y, -p, listHeight), [])
-
-        y = -self.lineHeight * 6 - p * 5
-        self.w.glyphNamesLabel = TextBox(
-            (x, y, -p, self.lineHeight),
-            'glyph names:', sizeStyle='small')
-
-        y = -(p + self.lineHeight) * 5
-        self.w.glyphNames = EditText(
-            (x, y, -p, self.lineHeight),
+        self.glyphs = Group((0, 0, -0, -0))
+        x = y = p = self.padding
+        textBoxHeight = -(self.lineHeight * 5) - (p * 3)
+        self.glyphs.names = EditText(
+            (x, y, -p, textBoxHeight),
             'a b c A B C one two three')
 
         y = -(p + self.lineHeight) * 4
-        self.w.importButton = Button(
+        self.glyphs.importButton = Button(
                 (x, y, -p, self.lineHeight),
                 'import glyphs',
                 callback=self.importButtonCallback)
 
         y = -(p + self.lineHeight) * 3
-        self.w.importMode = RadioGroup(
+        self.glyphs.importMode = RadioGroup(
                 (x, y, -p, self.lineHeight),
                 ['fonts → fonts', 'fonts → layers'],
                 sizeStyle='small',
                 isVertical=False)
-        self.w.importMode.set(0)
+        self.glyphs.importMode.set(0)
 
         y = -(p + self.lineHeight) * 2
-        self.w.exportButton = Button(
+        self.glyphs.exportButton = Button(
                 (x, y, -p, self.lineHeight),
                 'export selected glyphs',
                 callback=self.exportButtonCallback)
 
         y = -(p + self.lineHeight)
-        self.w.progress = ProgressBar((x, y, -p, self.lineHeight))
+        self.glyphs.progress = ProgressBar((x, y, -p, self.lineHeight))
+
+        descriptions = [
+           dict(label="designspaces", view=self.designspaces, size=self.lineHeight*5, minSize=self.lineHeight*6, collapsed=False, canResize=True),
+           dict(label="sources", view=self.sources, size=self.lineHeight*8, minSize=self.lineHeight*6, collapsed=False, canResize=True),
+           dict(label="glyphs", view=self.glyphs, size=self.lineHeight*10, minSize=self.lineHeight*8, collapsed=False, canResize=True),
+        ]
+        self.w.accordionView = AccordionView((0, 0, -0, -0), descriptions)
 
         self.w.open()
 
     @property
     def glyphNames(self):
-        return self.w.glyphNames.get().split()
+        return self.glyphs.names.get().split()
 
     @property
     def selectedDesignspace(self):
-        selection = self.w.designSpacesList.getSelection()
-        designspaces = self.w.designSpacesList.get()
+        selection = self.designspaces.list.getSelection()
+        designspaces = self.designspaces.list.get()
         return [designspace for i, designspace in enumerate(designspaces)] if len(designspaces) else None
 
     @property
     def selectedMasters(self):
-        selection = self.w.mastersList.getSelection()
-        masters = self.w.mastersList.get()
+        selection = self.sources.list.getSelection()
+        masters = self.sources.list.get()
         return [master for i, master in enumerate(masters) if i in selection]
 
     @property
@@ -125,11 +118,11 @@ class TempEditGlyphs:
 
     @property
     def importMode(self):
-        return self.w.importMode.get()
+        return self.glyphs.importMode.get()
 
     def selectDesignspaceCallback(self, sender):
         selection = sender.getSelection()
-        designSpaces = self.w.designSpacesList.get()
+        designSpaces = self.designspaces.list.get()
 
         if not selection or not len(designSpaces):
             return
@@ -138,8 +131,8 @@ class TempEditGlyphs:
         designSpace = DesignSpaceDocument()
         designSpace.read(designSpacePath)
 
-        posSize = self.w.mastersList.getPosSize()
-        del self.w.mastersList
+        posSize = self.sources.list.getPosSize()
+        del self.sources.list
 
         titles  = ['UFO path']
         titles += [axis.name for axis in designSpace.axes]
@@ -155,7 +148,7 @@ class TempEditGlyphs:
                 item[axis.name] = source.location[axis.name]
             items.append(item)
 
-        self.w.mastersList = List(
+        self.sources.list = List(
             posSize, items,
             columnDescriptions=descriptions,
             allowsMultipleSelection=True,
@@ -169,9 +162,7 @@ class TempEditGlyphs:
         if self.verbose:
             print('importing glyphs from selected sources...\n')
 
-        # ----------------------
         # mode 0 : fonts → fonts
-        # ----------------------
 
         if self.importMode == 0:
 
@@ -208,9 +199,7 @@ class TempEditGlyphs:
                 if self.verbose:
                     print()
 
-        # -----------------------
         # mode 1 : fonts → layers
-        # -----------------------
 
         else:
             tmpFont  = NewFont(familyName='tempEdit')
@@ -297,8 +286,8 @@ class TempEditGlyphs:
 
         if not isProposal:
             for path in paths:
-                self.w.designSpacesList.append(path)
-                self.w.designSpacesList.setSelection([0])
+                self.designspaces.list.append(path)
+                self.designspaces.list.setSelection([0])
 
         return True
 

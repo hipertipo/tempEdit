@@ -21,7 +21,7 @@ B.icon = None # os.path.join(basePath, 'tempEditMechanicIcon.png')
 B.version = '0.1'
 B.launchAtStartUp = False
 B.mainScript = ''
-B.html = False
+B.html = True
 B.requiresVersionMajor = '3'
 B.requiresVersionMinor = '2'
 B.addToMenu = [
@@ -37,15 +37,17 @@ with open(licensePath) as license:
 
 # copy README & imgs to extension docs
 
-# shutil.copyfile(os.path.join(basePath, 'README.md'), os.path.join(htmlPath, 'index.md'))
+shutil.copyfile(os.path.join(basePath, 'README.md'), os.path.join(htmlPath, 'index.md'))
+imgsFolder = os.path.join(basePath, 'imgs')
+htmlImgsFolder = os.path.join(htmlPath, 'imgs')
+if not os.path.exists(htmlImgsFolder):
+    os.makedirs(htmlImgsFolder)
 
-# imgsFolder = os.path.join(basePath, 'imgs')
-# htmlImgsFolder = os.path.join(htmlPath, 'imgs')
-# for f in os.listdir(imgsFolder):
-#     if not os.path.splitext(f)[-1] in ['.png', '.jpg', '.jpeg']:
-#         continue
-#     imgPath = os.path.join(imgsFolder, f)
-#     shutil.copy2(imgPath, htmlImgsFolder)
+for f in os.listdir(imgsFolder):
+    if not os.path.splitext(f)[-1] in ['.png', '.jpg', '.jpeg']:
+        continue
+    imgPath = os.path.join(imgsFolder, f)
+    shutil.copy2(imgPath, htmlImgsFolder)
 
 # build extension package
 
