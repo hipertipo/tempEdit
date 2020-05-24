@@ -6,18 +6,18 @@ A tool for importing glyphs from `.designspace` sources into a temporary font fo
 Problem
 -------
 
-- dealing with large designspaces containing several masters
+- dealing with large designspaces containing lots of masters
 - each master contains hundreds of glyphs each
 - need to have several masters open at once in the 
 UI for editing
-- refreshing the Font Collection is a performance bottleneck, RF becomes slower
+- refreshing the Font Overview is a performance bottleneck, RF becomes slower
 
 see [What computer performance metrics are most relevant to RF performance?](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
 
 Solution
 --------
 
-- avoid opening several large fonts in the UI!
+- avoid opening several large fonts in the UI
 - treat full UFOs as a “database”, work with partial fonts instead
 - open only glyphs that need to be edited in the UI using temporary fonts
 - after the glyphs have been edited, save them back into their source fonts
