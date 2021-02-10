@@ -1,9 +1,10 @@
 TempEdit
 ========
 
-TempEdit is a RoboFont extension to import glyphs from multiple designspace sources into temporary font(s) for editing, and save them back into their source UFOs after the edits are done.
+A RoboFont extension to import glyphs from multiple designspace sources into temporary font(s) for editing, and export them back into their source UFOs when finished.
 
 ![](imgs/TempEdit.png)
+
 
 
 Context
@@ -32,12 +33,12 @@ How to use the tool
 4. Choose how the source glyphs will be imported:
 
    fonts → fonts
-   : import each source into a separate font: 
+   : import each source into a separate font
 
    ![](imgs/tempedit-fonts-fonts.png)
 
    fonts → layers
-   : import sources as layers of a single font:
+   : import sources as layers of a single font
 
    ![](imgs/tempedit-fonts-layers.png)
 
