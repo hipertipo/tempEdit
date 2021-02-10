@@ -3,15 +3,15 @@ TempEdit
 
 TempEdit is a RoboFont extension to import glyphs from multiple designspace sources into temporary font(s) for editing, and save them back into their source UFOs after the edits are done.
 
-![](imgs/tempedit-full.png)
+![](imgs/TempEdit.png)
 
 
 Context
 -------
 
-Working with large designspaces with many masters can be challenging: loading too many large fonts can make the application slower, and it gets hard to jump between glyphs from different masters.
+Working with large designspaces with many masters can be challenging: loading many large fonts makes the application slow, and it gets harder to jump between glyphs from different masters.
 
-TempEdit offers a method to edit glyphs from multiple masters without having to load the full fonts which contain them. The glyphs are imported into one or more temporary font(s) for editing, and are saved back into their source UFOs when editing is over. The multiple source glyphs can be imported as layers of a single font, or as separate fonts.
+TempEdit offers a method for editing glyphs from multiple masters without having to load full fonts. The glyphs are imported into one or more temporary font(s) for editing, and are saved back into their source UFOs when editing is over. The multiple source glyphs can be imported as layers of a single font, or as separate fonts.
 
 - see also: [What computer performance metrics are most relevant to RF performance?](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
 
@@ -31,13 +31,15 @@ How to use the tool
 
 4. Choose how the source glyphs will be imported:
 
-    Select *fonts → fonts* to import each source into a separate font: 
+   fonts → fonts
+   : import each source into a separate font: 
 
-    ![](imgs/tempedit-fonts-fonts.png)
+   ![](imgs/tempedit-fonts-fonts.png)
 
-    Select *fonts → layers* to import sources as layers of a single font:
+   fonts → layers
+   : import sources as layers of a single font:
 
-    ![](imgs/tempedit-fonts-layers.png)
+   ![](imgs/tempedit-fonts-layers.png)
 
 5. Click on the *import* button to import glyphs into a temporary font.
 

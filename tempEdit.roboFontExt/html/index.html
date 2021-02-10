@@ -8,48 +8,49 @@
         
         </head>
         <body>
-        <h1>tempEdit</h1>
-<p>A tool for importing glyphs from <code>.designspace</code> sources into a temporary font for editing, and saving them back into their source UFOs when done.</p>
-<h2 id="problem">Problem</h2>
+        <h1>TempEdit</h1>
+<p>TempEdit is a RoboFont extension to import glyphs from multiple designspace sources into temporary font(s) for editing, and save them back into their source UFOs after the edits are done.</p>
+<p><img alt="" src="imgs/TempEdit.png" /></p>
+<h2 id="context">Context</h2>
+<p>Working with large designspaces with many masters can be challenging: loading many large fonts makes the application slow, and it gets harder to jump between glyphs from different masters.</p>
+<p>TempEdit offers a method for editing glyphs from multiple masters without having to load full fonts. The glyphs are imported into one or more temporary font(s) for editing, and are saved back into their source UFOs when editing is over. The multiple source glyphs can be imported as layers of a single font, or as separate fonts.</p>
 <ul>
-<li>dealing with large designspaces containing lots of masters</li>
-<li>each master contains hundreds of glyphs each</li>
-<li>need to have several masters open at once in the 
-UI for editing</li>
-<li>refreshing the Font Overview is a performance bottleneck, RF becomes slower</li>
+<li>see also: <a href="http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance">What computer performance metrics are most relevant to RF performance?</a></li>
 </ul>
-<p>see <a href="http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance">What computer performance metrics are most relevant to RF performance?</a></p>
-<h2 id="solution">Solution</h2>
-<ul>
-<li>avoid opening several large fonts in the UI</li>
-<li>treat full UFOs as a “database”, work with partial fonts instead</li>
-<li>open only glyphs that need to be edited in the UI using temporary fonts</li>
-<li>after the glyphs have been edited, save them back into their source fonts</li>
-</ul>
-<h2 id="usage">Usage</h2>
-<p><img alt="" src="imgs/screenshot.png" /></p>
+<h2 id="how-to-use-the-tool">How to use the tool</h2>
 <ol>
 <li>
-<p>Drag and drop one or more <code>.designspace</code> files from Finder into the <em>designspaces</em> list (top).</p>
+<p>Open the TempEdit window from the <em>Extensions</em> menu.</p>
+<p><img alt="" src="imgs/tempedit-tool.png" /></p>
 </li>
 <li>
-<p>Select a designspace file to refresh the <em>UFO sources</em> list with all masters used in the designspace.</p>
+<p>Drag and drop one or more <code>.designspace</code> files from Finder into the <em>designspaces</em> list.</p>
 </li>
 <li>
-<p>Define a list with names of glyphs you wish to import for editing.</p>
+<p>Select a designspace in the top list to load all its sources into the second list.</p>
 </li>
+<li>
+<p>Define which glyphs will be imported for editing, as a list of glyph names.</p>
+</li>
+<li>
+<p>Choose how the source glyphs will be imported:</p>
+</li>
+</ol>
+<p>fonts → fonts
+   : import each source into a separate font: </p>
+<p><img alt="" src="imgs/tempedit-fonts-fonts.png" /></p>
+<p>fonts → layers
+   : import sources as layers of a single font:</p>
+<p><img alt="" src="imgs/tempedit-fonts-layers.png" /></p>
+<ol>
 <li>
 <p>Click on the <em>import</em> button to import glyphs into a temporary font.</p>
-<p>Choose <em>fonts → fonts</em> to import each source into a separate font: </p>
-<p><img alt="" src="imgs/fonts-fonts.png" /></p>
-<p>Choose <em>fonts → layers</em> to import sources as layers of a single font:</p>
-<p><img alt="" src="imgs/fonts-layers.png" /></p>
 </li>
 <li>
 <p>Make changes, then use the <em>export</em> button to save the selected glyphs back into their source fonts.</p>
 </li>
 </ol>
-<h2 id="implementation">Implementation</h2>
+<h2 id="implementation-details">Implementation details</h2>
 <p>When a glyph is imported from a UFO source into a temporary font, the path of the source glyphset is stored in the glyph lib. This way, the glyph can find its way back to its source font when it is exported.</p>
         </body>
         </html>
