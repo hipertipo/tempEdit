@@ -49,7 +49,7 @@ class TempEditGlyphs:
                 [],
                 allowsMultipleSelection=False,
                 allowsEmptySelection=False,
-                editCallback=self.selectDesignspaceCallback,
+                # editCallback=self.selectDesignspaceCallback,
                 selectionCallback=self.selectDesignspaceCallback,
                 enableDelete=True,
                 otherApplicationDropSettings=dict(
@@ -115,6 +115,7 @@ class TempEditGlyphs:
         ]
         self.w.accordionView = AccordionView((0, 0, -0, -0), descriptions)
 
+        self.w.getNSWindow().setTitlebarAppearsTransparent_(True)
         self.w.open()
 
     # -------------
@@ -154,41 +155,64 @@ class TempEditGlyphs:
         selection = sender.getSelection()
         designSpaces = self.designspaces.list.get()
 
+        # delete current list
+        posSize = self.sources.list.getPosSize()
+        del self.sources.list
+
+        # list of sources is empty
         if not selection or not len(designSpaces):
+            items = []
+            self.sources.list = List(posSize, [])
             return
 
+        # get sources from selected designspace
         designSpaceLabel = [D for i, D in enumerate(designSpaces) if i in selection][0]
         designSpacePath = self._designspaces[designSpaceLabel]
         designSpace = DesignSpaceDocument()
         designSpace.read(designSpacePath)
 
-        posSize = self.sources.list.getPosSize()
-        del self.sources.list
-
-        titles  = ['source']
+        # get column descriptions
+        titles  = ['name']
         titles += [axis.name for axis in designSpace.axes]
         descriptions = [{"title": D} for D in titles]
-        
-        ### set fixed size for source name column
-        # for i, D in enumerate(descriptions):
-        #     if i > 0:
-        #         D['width'] = 60
 
+        # make list items
         self._sources = {}
         items = []
         for source in designSpace.sources:
             sourceName = os.path.splitext(os.path.split(source.path)[-1])[0]
             self._sources[sourceName] = source.path
-            item = { 'source' : sourceName }
+            item = { 'name' : sourceName }
             for axis in designSpace.axes:
                 item[axis.name] = source.location[axis.name]
             items.append(item)
 
+        # create list UI with items
         self.sources.list = List(
             posSize, items,
             columnDescriptions=descriptions,
             allowsMultipleSelection=True,
             enableDelete=False)
+
+    def dropCallback(self, sender, dropInfo):
+        isProposal = dropInfo["isProposal"]
+        existingPaths = sender.get()
+
+        paths = dropInfo["data"]
+        paths = [path for path in paths if path not in existingPaths]
+        paths = [path for path in paths if os.path.splitext(path)[-1].lower() == '.designspace']
+
+        if not paths:
+            return False
+
+        if not isProposal:
+            for path in paths:
+                label = os.path.splitext(os.path.split(path)[-1])[0]
+                self._designspaces[label] = path
+                self.designspaces.list.append(label)
+                self.designspaces.list.setSelection([0])
+
+        return True
 
     def importButtonCallback(self, sender):
 
@@ -203,9 +227,9 @@ class TempEditGlyphs:
         if self.importMode == 0:
 
             for master in self.selectedMasters:
-                ufoPath = self._sources[master['source']]
+                ufoPath = self._sources[master['name']]
                 srcFont = OpenFont(ufoPath, showInterface=False)
-                tmpFont = NewFont(familyName=srcFont.info.familyName, styleName=srcFont.info.styleName)
+                tmpFont = NewFont(familyName=srcFont.info.familyName, styleName=srcFont.info.styleName, showInterface=False)
                 glyphsFolder = os.path.join(ufoPath, 'glyphs')
                 ufoName = splitall(glyphsFolder)[-2]
 
@@ -232,20 +256,30 @@ class TempEditGlyphs:
                     tmpFont[glyphName] = srcGlyph
                     tmpFont[glyphName].lib[self.glyphSetPathKey] = glyphsFolder
 
+                tmpFont.openInterface()
+
                 if self.verbose:
                     print()
 
         # mode 1 : fonts → layers
 
         else:
-            tmpFont  = NewFont(familyName='tempEdit')
+            
+            tmpFont = CurrentFont()
+            if tmpFont is None:
+                tmpFont = NewFont(familyName='tempEdit')
 
             for i, master in enumerate(self.selectedMasters):
-                ufoPath = self._sources[master['source']]
+                ufoPath = self._sources[master['name']]
+                if not os.path.exists(ufoPath):
+                    if self.verbose:
+                        print(f'source file does not exist: {ufoPath}')
+                    continue
+                
                 srcFont = OpenFont(ufoPath, showInterface=False)
                 glyphsFolder = os.path.join(ufoPath, 'glyphs')
                 ufoName = splitall(glyphsFolder)[-2]
-                layerName = ufoName.replace('.ufo', '')
+                layerName = os.path.splitext(ufoName)[0] # ufoName.replace('.ufo', '')
                 tmpLayer = tmpFont.newLayer(layerName)
 
                 if self.verbose:
@@ -253,26 +287,32 @@ class TempEditGlyphs:
 
                 if i == 0:
                     tmpFont.defaultLayer = tmpLayer
-                    tmpFont.removeLayer('foreground')
+                    if 'foreground' in tmpFont.layerOrder:
+                        tmpFont.removeLayer('foreground')
 
                 for glyphName in self.glyphNames:
+
                     if glyphName not in srcFont:
                         if self.verbose:
-                            print(f'\t\t{glyphName} not in font.')
-                        continue
+                            print(f'\t\tcreating {glyphName}...')
+                            tmpLayer.newGlyph(glyphName)
 
-                    srcGlyph = srcFont[glyphName]
-                    for component in srcGlyph.components:
-                        if component.baseGlyph not in tmpLayer:
-                            if self.verbose:
-                                print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
-                            tmpLayer[component.baseGlyph] = srcFont[component.baseGlyph]
-                            tmpLayer[component.baseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
+                    else:
+                        srcGlyph = srcFont[glyphName]
+                        for component in srcGlyph.components:
+                            if component.baseGlyph not in tmpLayer:
+                                if component.baseGlyph not in srcFont:
+                                    continue
+                                if self.verbose:
+                                    print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
+                                tmpLayer[component.baseGlyph] = srcFont[component.baseGlyph]
+                                tmpLayer[component.baseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
 
-                    if self.verbose:
-                        print(f'\t\timporting {glyphName}...')
-                    tmpLayer[glyphName] = srcGlyph
-                    tmpLayer[glyphName].width = srcGlyph.width
+                        if self.verbose:
+                            print(f'\t\timporting {glyphName}...')
+                        tmpLayer[glyphName] = srcGlyph
+                        tmpLayer[glyphName].width = srcGlyph.width
+
                     tmpLayer[glyphName].lib[self.glyphSetPathKey] = glyphsFolder
 
                 if self.verbose:
@@ -309,23 +349,3 @@ class TempEditGlyphs:
         if self.verbose:
             print()
             print('...done.\n')
-
-    def dropCallback(self, sender, dropInfo):
-        isProposal = dropInfo["isProposal"]
-        existingPaths = sender.get()
-
-        paths = dropInfo["data"]
-        paths = [path for path in paths if path not in existingPaths]
-        paths = [path for path in paths if os.path.splitext(path)[-1].lower() == '.designspace']
-
-        if not paths:
-            return False
-
-        if not isProposal:
-            for path in paths:
-                label = os.path.splitext(os.path.split(path)[-1])[0]
-                self._designspaces[label] = path
-                self.designspaces.list.append(label)
-                self.designspaces.list.setSelection([0])
-
-        return True

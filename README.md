@@ -1,58 +1,50 @@
-tempEdit
+TempEdit
 ========
 
-A tool for importing glyphs from `.designspace` sources into a temporary font for editing, and saving them back into their source UFOs when done.
+TempEdit is a RoboFont extension to import glyphs from multiple designspace sources into temporary font(s) for editing, and save them back into their source UFOs after the edits are done.
 
-Usage
------
+![](imgs/tempedit-full.png)
 
-0. Open the tempEdit window from the *Extensions* menu.
 
-    ![](imgs/screenshot.png)
+Context
+-------
 
-1. Drag and drop one or more `.designspace` files from Finder into the *designspaces* list (top).
+Working with large designspaces with many masters can be challenging: loading too many large fonts can make the application slower, and it gets hard to jump between glyphs from different masters.
 
-2. Select a designspace file to refresh the *UFO sources* list with all masters used in the designspace.
+TempEdit offers a method to edit glyphs from multiple masters without having to load the full fonts which contain them. The glyphs are imported into one or more temporary font(s) for editing, and are saved back into their source UFOs when editing is over. The multiple source glyphs can be imported as layers of a single font, or as separate fonts.
 
-3. Define a list with names of glyphs you wish to import for editing.
+- see also: [What computer performance metrics are most relevant to RF performance?](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
 
-4. Click on the *import* button to import glyphs into a temporary font.
 
-    Choose *fonts → fonts* to import each source into a separate font: 
+How to use the tool
+-------------------
 
-    ![](imgs/fonts-fonts.png)
+0. Open the TempEdit window from the *Extensions* menu.
 
-    Choose *fonts → layers* to import sources as layers of a single font:
+    ![](imgs/tempedit-tool.png)
 
-    ![](imgs/fonts-layers.png)
+1. Drag and drop one or more `.designspace` files from Finder into the *designspaces* list.
 
-5. Make changes, then use the *export* button to save the selected glyphs back into their source fonts.
+2. Select a designspace in the top list to load all its sources into the second list.
 
-<!--
+3. Define which glyphs will be imported for editing, as a list of glyph names.
 
-Background
-----------
+4. Choose how the source glyphs will be imported:
 
-### Problem
+    Select *fonts → fonts* to import each source into a separate font: 
 
-- large designspaces containing lots of masters
-- each master has hundreds of glyphs each
-- several masters open at once in the 
-UI for editing
-- refreshing the Font Overview is a performance bottleneck, RF becomes slower
+    ![](imgs/tempedit-fonts-fonts.png)
 
-see [What computer performance metrics are most relevant to RF performance?](http://forum.robofont.com/topic/672/what-computer-performance-metrics-are-most-relevant-to-rf-performance)
+    Select *fonts → layers* to import sources as layers of a single font:
 
-### Solution
+    ![](imgs/tempedit-fonts-layers.png)
 
-- avoid opening several large fonts in the UI
-- use full UFOs as a database, work with partial fonts instead
-- open only glyphs that need to be edited in the UI using temporary fonts
-- after the glyphs have been edited, save them back into their source fonts
+5. Click on the *import* button to import glyphs into a temporary font.
 
-Implementation
---------------
+6. Make changes, then use the *export* button to save the selected glyphs back into their source fonts.
+
+
+Implementation details
+----------------------
 
 When a glyph is imported from a UFO source into a temporary font, the path of the source glyphset is stored in the glyph lib. This way, the glyph can find its way back to its source font when it is exported.
-
--->
