@@ -1,0 +1,118 @@
+---
+sitemap: false
+excludeSearch: true
+excludeNavigation: true
+---
+
+@import "highlights"
+
+body
+  background-color: rgba(0, 0, 0, .125)
+  position: relative
+
+img
+  user-select: none
+
+main, footer
+  a
+    text-decoration: none
+    &:hover
+      border-bottom: solid 1px
+
+  a[href*="//"]:not([href*="localhost:4000"]),
+  a[href*="//"]:not([href*="hipertipo.gitlab.io/hrasterizer-extension"])
+    &:not(.page-link)
+      &:hover
+        border-bottom-width: 3px !important
+        border-bottom-style: double
+
+ul
+  padding-left: 1.5em
+
+::selection
+  background-color: #EFEFEF
+
+#logo
+  padding: 0 14px 7px 0
+  svg
+    border: none !important
+    transform-origin: 0px 5px
+    transform: scale(3)
+
+  #foreground
+    fill: white
+  #background
+    fill: #777
+
+  &:hover
+    #background
+      fill: #333
+
+.container
+  max-width: 960px
+
+.navbar, footer
+  background-color: #DFDFDF !important
+
+.changelog
+  .badge
+    background-color: #DFDFDF !important
+    color: #6c757d
+    width: 7em
+    height: 1.6em
+    margin-right: 0.5em
+    display: none
+    user-select: none
+
+@media (min-width: 768px)
+  .changelog
+    ul
+      padding-left: 0
+      list-style: none
+    .badge
+      display: inline-block
+
+.highlight
+  background-color: rgba(0, 0, 0, .03)
+
+// collapsible kramdown toc
+#markdown-toc
+  margin: 1em 0
+  padding: 1em
+  background-color: #EFEFEF
+  border-radius: 0
+  list-style-position: inside
+  ul
+    margin: 0
+    padding-left: 1em
+  li
+    list-style-type: none
+    position: relative
+    &:before 
+      content: "· "
+  &::before
+    content: "Table of Contents «"
+    display: block
+
+.toc-collapse
+  &::before
+    content: "Table of Contents »" !important
+
+// header links
+
+.header-link
+  opacity: 0
+  text-decoration: none
+
+h2:hover .header-link,
+h3:hover .header-link,
+h4:hover .header-link,
+h5:hover .header-link,
+h6:hover .header-link,
+dt:hover .header-link
+  opacity: 1
+
+.header-link span:after 
+    content: "¶"
+    position: absolute
+    

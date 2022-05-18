@@ -26,12 +26,12 @@ def splitall(path):
 
 class TempEditGlyphs:
 
-    key = 'com.hipertipo.tempEdit'
-    width  = 320
-    height = 640
-    padding = 10
+    key        = 'com.hipertipo.tempEdit'
+    width      = 123*3
+    height     = 640
+    padding    = 10
     lineHeight = 22
-    verbose = True
+    verbose    = True
 
     _designspaces = {}
     _sources = {}
@@ -40,7 +40,7 @@ class TempEditGlyphs:
         self.w = FloatingWindow(
                 (self.width, self.height),
                 title='tempEdit',
-                minSize=(240, 360))
+                minSize=(self.width*0.9, self.width*0.5))
 
         self.designspaces = Group((0, 0, -0, -0))
         x = y = p = self.padding
@@ -79,10 +79,10 @@ class TempEditGlyphs:
         y = -(p + self.lineHeight) * 3
         self.glyphs.importMode = RadioGroup(
                 (x, y, -p, self.lineHeight),
-                ['fonts → fonts', 'fonts → layers'],
+                ['fonts → fonts', 'fonts → glyphs', 'fonts → layers'],
                 sizeStyle='small',
                 isVertical=False)
-        self.glyphs.importMode.set(0)
+        self.glyphs.importMode.set(2)
 
         y = -(p + self.lineHeight) * 2
         self.glyphs.exportButton = Button(
@@ -152,6 +152,7 @@ class TempEditGlyphs:
     # ---------
 
     def selectDesignspaceCallback(self, sender):
+
         selection = sender.getSelection()
         designSpaces = self.designspaces.list.get()
 
@@ -195,6 +196,7 @@ class TempEditGlyphs:
             enableDelete=False)
 
     def dropCallback(self, sender, dropInfo):
+
         isProposal = dropInfo["isProposal"]
         existingPaths = sender.get()
 
@@ -230,6 +232,7 @@ class TempEditGlyphs:
                 ufoPath = self._sources[master['name']]
                 srcFont = OpenFont(ufoPath, showInterface=False)
                 tmpFont = NewFont(familyName=srcFont.info.familyName, styleName=srcFont.info.styleName, showInterface=False)
+
                 glyphsFolder = os.path.join(ufoPath, 'glyphs')
                 ufoName = splitall(glyphsFolder)[-2]
 
@@ -261,7 +264,62 @@ class TempEditGlyphs:
                 if self.verbose:
                     print()
 
-        # mode 1 : fonts → layers
+        # mode 1 : fonts → glyphs
+        
+        if self.importMode == 1:
+            tmpFont = CurrentFont()
+            if tmpFont is None:
+                tmpFont = NewFont(familyName='tempEdit')
+
+            for i, master in enumerate(self.selectedMasters):
+                ufoPath = self._sources[master['name']]
+                if not os.path.exists(ufoPath):
+                    if self.verbose:
+                        print(f'source file does not exist: {ufoPath}')
+                    continue
+                
+                srcFont = OpenFont(ufoPath, showInterface=False)
+                glyphsFolder = os.path.join(ufoPath, 'glyphs')
+                ufoName = splitall(glyphsFolder)[-2]
+                glyphNameExtension = os.path.splitext(ufoName)[0]
+
+                for glyphName in self.glyphNames:
+
+                    tmpGlyphName = f'{glyphName}.{glyphNameExtension}'
+
+                    if glyphName not in srcFont:
+                        if self.verbose:
+                            print(f'\t\tcreating {glyphName}...')
+                            tmpFont.newGlyph(tmpGlyphName)
+
+                    else:
+                        srcGlyph = srcFont[glyphName]
+                        for component in srcGlyph.components:
+                            if component.baseGlyph not in tmpFont:
+                                if component.baseGlyph not in srcFont:
+                                    continue
+                                if self.verbose:
+                                    print(f'\t\timporting {component.baseGlyph} ({glyphName})...')
+                                tmpBaseGlyph = f'{component.baseGlyph}.{glyphNameExtension}'
+                                tmpFont[tmpBaseGlyph] = srcFont[component.baseGlyph]
+                                tmpFont[tmpBaseGlyph].lib[self.glyphSetPathKey] = glyphsFolder
+
+                        if self.verbose:
+                            print(f'\t\timporting {glyphName}...')
+
+                        tmpFont.newGlyph(tmpGlyphName)
+                        tmpFont[tmpGlyphName].appendGlyph(srcGlyph)
+                        tmpFont[tmpGlyphName].width = srcGlyph.width
+
+                    tmpFont[tmpGlyphName].lib[self.glyphSetPathKey] = glyphsFolder
+
+                if 'background' not in tmpFont.layerOrder:
+                    tmpFont.newLayer('background')
+
+                if self.verbose:
+                    print()
+
+        # mode 2 : fonts → layers
 
         else:
             
@@ -279,7 +337,7 @@ class TempEditGlyphs:
                 srcFont = OpenFont(ufoPath, showInterface=False)
                 glyphsFolder = os.path.join(ufoPath, 'glyphs')
                 ufoName = splitall(glyphsFolder)[-2]
-                layerName = os.path.splitext(ufoName)[0] # ufoName.replace('.ufo', '')
+                layerName = os.path.splitext(ufoName)[0]
                 tmpLayer = tmpFont.newLayer(layerName)
 
                 if self.verbose:
@@ -322,7 +380,9 @@ class TempEditGlyphs:
             print('...done.\n')
 
     def exportButtonCallback(self, sender):
+
         f = CurrentFont()
+
         if f is None:
             return
 
@@ -330,22 +390,62 @@ class TempEditGlyphs:
             print('exporting selected glyphs back to their sources...\n')
 
         for glyphName in f.selectedGlyphNames:
-            for layerName in f.layerOrder:
-                glyph = f[glyphName].getLayer(layerName)
+
+            if self.importMode == 1:
+
+                glyph = f[glyphName].getLayer('foreground')
 
                 if self.glyphSetPathKey not in glyph.lib:
                     continue
 
                 glyphsFolder = glyph.lib[self.glyphSetPathKey]
-                glyphSet = GlyphSet(glyphsFolder, validateWrite=True)
                 ufoName = splitall(glyphsFolder)[-2]
+                glyphNameExtension = os.path.splitext(ufoName)[0]
+                glyphNameParts = glyphName.split('.')
+
+                if not (len(glyphNameParts) > 1 and glyphNameParts[-1] == os.path.splitext(ufoName)[0]):
+                    print(f'{glyphName} does not have the expected glyph name extension, skipping...')
+                    continue
 
                 if self.verbose:
                     print(f'\twriting {glyphName} to {ufoName}...')
 
-                glyphSet.writeGlyph(glyphName, glyph.naked(), glyph.drawPoints)
+                outputGlyphName = '.'.join(glyphNameParts[:-1])
+                glyphSet = GlyphSet(glyphsFolder, validateWrite=True)
+                glyphSet.writeGlyph(outputGlyphName, glyph.naked(), glyph.drawPoints)
                 glyphSet.writeContents()
+
+            else:
+
+                for layerName in f.layerOrder:
+                    glyph = f[glyphName].getLayer(layerName)
+
+                    if self.glyphSetPathKey not in glyph.lib:
+                        continue
+
+                    glyphsFolder = glyph.lib[self.glyphSetPathKey]
+
+                    # mode 0
+                    if not '.ufoz' in glyphsFolder:
+                        glyphSet = GlyphSet(glyphsFolder, validateWrite=True)
+                        ufoName = splitall(glyphsFolder)[-2]
+                        if self.verbose:
+                            print(f'\twriting {glyphName} to {ufoName}...')
+                        glyphSet.writeGlyph(glyphName, glyph.naked(), glyph.drawPoints)
+                        glyphSet.writeContents()
+
+                    # mode 2
+                    else:
+                        ufoPath = os.path.dirname(glyphsFolder)
+                        ufoName = splitall(ufoPath)[-1]
+                        dstFont = OpenFont(ufoPath, showInterface=False)
+                        if self.verbose:
+                            print(f'\twriting {glyphName} to {ufoName}...')
+                        dstFont.insertGlyph(glyph, name=glyph.name)
+                        dstFont.save()
+                        dstFont.close()
 
         if self.verbose:
             print()
             print('...done.\n')
+

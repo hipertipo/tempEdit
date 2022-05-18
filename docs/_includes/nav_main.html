@@ -1,0 +1,39 @@
+<nav id='navbar-main' class="navbar fixed-top navbar-expand-sm">
+  <div class="container mx-auto px-md-4">
+    <a class="navbar-brand pe-4" id='logo' href="{{ site.url }}/">
+      <svg height="11" width="11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+       <path id='background' d="M0,0 l220,0 l0,220 l-220,0 Z M0,0" fill="rgb(0,0,0)" transform="matrix(1,0,0,-1,0,11)"/>
+       <path id='foreground' d="M2,3 l3,0 l0,1 l-1,0 l0,1 l3,0 l0,-1 l-1,0 l0,-1 l3,0 l0,1 l-1,0 l0,3 l1,0 l0,1 l-3,0 l0,-1 l1,0 l0,-1 l-3,0 l0,1 l1,0 l0,1 l-3,0 l0,-1 l1,0 l0,-3 l-1,0 Z M2,3" fill="rgb(255,255,255)" transform="matrix(1,0,0,-1,0,11)"/>
+      </svg>
+    </a>
+    <button class="navbar-toggler navbar-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarItems" aria-controls="navbarItems" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse user-select-none" id="navbarItems">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="http://tools.hipertipo.com/" target='_blank'>
+            tools.hipertipo.com <i class="bi bi-box-arrow-in-up-right"></i>
+          </a>
+        </li>
+        {% comment %}
+        <li class="nav-item">
+          <a class="nav-link" href="https://hipertipo.gitlab.io/hrasterizer/" target='_blank'>
+            hRasterizer API docs <i class="bi bi-box-arrow-in-up-right"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://hipertipo.gitlab.io/htools3-extension/" target='_blank'>
+            hTools3 user docs <i class="bi bi-box-arrow-in-up-right"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://hipertipo.gitlab.io/htools3/" target='_blank'>
+            hTools3 API docs <i class="bi bi-box-arrow-in-up-right"></i>
+          </a>
+        </li>
+        {% endcomment %}
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,28 @@
+title: TempEdit user documentation
+email: gustavo@hipertipo.com
+description: TempEdit user documentation
+baseurl: ""
+url: https://gferreira.github.io/tempedit
+
+markdown: kramdown
+
+collections:
+  topics:
+    output: true
+    permalink: /:path/
+  reference:
+    output: true
+    permalink: /:path/
+
+version: 0.3
+
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - Gemfile
+  - Gemfile.lock
+
+jekyll_tidy:
+  exclude: []
+  # ignore_env: development
+  compress_html: false

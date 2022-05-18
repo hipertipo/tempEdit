@@ -18,7 +18,7 @@
 	<key>developerURL</key>
 	<string>http://hipertipo.com</string>
 	<key>html</key>
-	<true/>
+	<false/>
 	<key>launchAtStartUp</key>
 	<false/>
 	<key>mainScript</key>
@@ -30,7 +30,7 @@
 	<key>requiresVersionMinor</key>
 	<string>2</string>
 	<key>timeStamp</key>
-	<real>1612992269.7092931</real>
+	<real>1652912237.7540429</real>
 	<key>version</key>
 	<string>0.3</string>
 </dict>
