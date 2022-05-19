@@ -26,4 +26,4 @@ for img in imgs:
 # print(dx, dy)    
 # image(imgTile, (-88, 468), alpha=0.5)
 
-saveImage()
+saveImage('/hipertipo/tools/tempEdit/docs/images/tempedit_mode-fonts.png')
