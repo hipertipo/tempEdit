@@ -1,7 +1,7 @@
 ---
-layout: default
-title: Installing TempEdit
-order: 4
+title  : Installing TempEdit
+layout : default
+order  : 4
 ---
 
 TempEdit is packaged and distributed as a [RoboFont extension].

@@ -1,8 +1,8 @@
 ---
-layout: default
-title: Changelog
-class: changelog
-order: 5
+title  : Changelog
+layout : default
+class  : changelog
+order  : 5
 ---
 
 All notable changes to StrokeSetter are documented in this file.

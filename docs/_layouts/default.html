@@ -4,11 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% if page.name == 'index.md' %}
-    <title>{{ page.title }}</title>
-  {% else %}
-    <title>{% if page.title %}TempEdit · {{ page.title }}{% else %}TempEdit{% endif %}</title>
-  {% endif %}
+  <title>{{ page.title }}</title>
   <link rel="icon" href="{{ site.url }}/favicon.ico"/>
   {% include bootstrap.html %}
   <link rel="stylesheet" href="{{ site.url }}/css/style.css" type="text/css" />

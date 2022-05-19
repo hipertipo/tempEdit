@@ -1,6 +1,6 @@
 ---
-layout: default
-title: Introduction to TempEdit
+title  : Introduction to TempEdit
+layout : default
 ---
 
 TempEdit offers a fast and flexible workflow for editing fonts with large designspaces.

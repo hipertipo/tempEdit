@@ -1,7 +1,7 @@
 ---
-layout: default
-title: TempEdit
-order: 1
+title  : TempEdit
+layout : default
+order  : 1
 ---
 
 A tool to edit glyphs from multiple designspace sources using temporary font(s).

@@ -1,6 +1,6 @@
 ---
-layout : default
 title  : TempEdit user docs
+layout : default
 ---
 
 <span class='badge bg-secondary'>version {{ site.version }}</span>
