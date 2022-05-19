@@ -10,7 +10,7 @@ A tool to edit glyphs from multiple designspace sources using temporary font(s).
 <div class='row'>
 
 <div class='col-sm-4' markdown='1'>
-![]({{"images/tempedit_tool.png" | relative_url }}){: .img-fluid}
+  <img class='img-fluid' src='{{ site.url }}/images/tempedit_tool.png' />
 </div>
 
 <div class='col-sm-8' markdown='1'>
