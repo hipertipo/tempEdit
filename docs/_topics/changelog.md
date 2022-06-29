@@ -5,11 +5,11 @@ class  : changelog
 order  : 5
 ---
 
-All notable changes to StrokeSetter are documented in this file.
+All notable changes to TempEdit are documented in this file.
 {: .lead }
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-hRasterizer adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+TempEdit adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!--
 
